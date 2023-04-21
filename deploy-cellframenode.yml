@@ -1,0 +1,21 @@
+#Ansible Playbook for Cellframe-node
+---
+name: Deploy Cellframe-node in Docker
+- hosts: cellframe-node-test
+task:
+  - name: Install Docker
+    apt: 
+        name: docker.io
+        state: latest
+  - name: Copy dockerfile
+  - name: Build docker image
+    docker_image: 
+        name: cellframe-node:test
+          build: 
+           path: /tmp/cellframe-node.dokerfile
+        state: present
+  - name: Crate and run doker container
+    docker:
+        name: cellframe-node
+        image: cellframe-node:test
+        state: reloaded
