@@ -1,0 +1,40 @@
+FROM debian:stable-slim
+ENV SERVER_PORT="8079"
+ENV SERVER_ADDR="0.0.0.0"
+ENV DEBUG="true"
+ENV AUTO_ONLINE="true"
+ENV SERVER_ENABLED="true"
+ENV NOTIFY_SRV_ADDR="127.0.0.1"
+ENV NOTIFY_SRV_PORT="8080"
+ENV ENABLE_PYTHON_PLUGINS="true"
+ENV PYTHON_PLUGINS_PATH="/opt/cellframe-node/var/lib/plugins"
+ENV BACKBONE_ENABLED="true"
+ENV BACKBONE_NODE_TYPE="full"
+ENV MILEENA_ENABLED="false"
+ENV MILEENA_NODE_TYPE="full"
+ENV MINKOWSKI_ENABLED="false"
+ENV MINKOWSKI_NODE_TYPE="full"
+ENV SUBZERO_ENABLED="false"
+ENV SUBZERO_NODE_TYPE="full"
+RUN apt update 
+RUN apt install wget debconf-utils dconf-cli less pv psmisc logrotate irqbalance xz-utils -y
+RUN wget -P /tmp https://pub.cellframe.net/linux/cellframe-node/master/cellframe-node-5.1-385-amd64.deb
+RUN debconf-set-selections cellframe-node cellframe-node/mileena_enabled  ${MILEENA_ENABLED}
+RUN echo cellframe-node cellframe-node/mileena_node_type select ${$MILEENA_NODE_TYPE} | debconf-set-selections
+RUN cellframe-node cellframe-node/kelvpn_minkowski_enabled select ${MINKOWSKI_ENABLED} | debconf-set-selections
+RUN cellframe-node cellframe-node/kelvpn_minkowski_node_type select ${MINKOWSKI_NODE_TYPE} | debconf-set-selections
+RUN cellframe-node cellframe-node/backbone_enabled select ${BACKBONE_ENABLED} | debconf-set-selections
+RUN cellframe-node cellframe-node/backbone_node_type select ${BACKBONE_NODE_TYPE} | debconf-set-selections
+RUN cellframe-node cellframe-node/subzero_enabled select ${SUBZERO_ENABLED} | debconf-set-selections
+RUN cellframe-node cellframe-node/subzero_node_type select ${SUBZERO_NODE_TYPE} | debconf-set-selections
+RUN cellframe-node cellframe-node/notify_srv_port select ${NOTIFY_SRV_PORT} | debconf-set-selections
+RUN cellframe-node cellframe-node/notify_srv_addr select ${NOTIFY_SRV_ADDR} | debconf-set-selections
+RUN cellframe-node cellframe-node/auto_online select ${AUTO_ONLINE} | debconf-set-selections
+RUN cellframe-node cellframe-node/server_enabled select ${SERVER_ENABLED} | debconf-set-selections
+RUN cellframe-node cellframe-node/debug_mode select ${DEBUG} | debconf-set-selections
+RUN cellframe-node cellframe-node/python_plugins_path select ${PYTHON_PLUGINS_PATH} | debconf-set-selections
+RUN cellframe-node cellframe-node/enable_python_plugins select ${ENABLE_PYTHON_PLUGINS} | debconf-set-selections
+RUN cellframe-node cellframe-node/server_port select ${SERVER_PORT} | debconf-set-selections
+RUN cellframe-node cellframe-node/server_addr select ${SERVER_ADDR} | debconf-set-selections
+RUN dpkg -i /tmp/cellframe-node-5.1-385-amd64.deb
+EXPOSE 8080
